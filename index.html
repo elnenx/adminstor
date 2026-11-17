@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LIZTR ESSENS | Admin Dashboard</title>
 
-    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#F8FAFC">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="LIZTR Admin">
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dyhlzplzb/image/upload/v1787450019/1_3a9e03c1-ce69-4e3b-b921-337b1b4e8a91_fnryux.png">
     
-    <!-- Tailwind CSS with Custom Color System -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,36 +19,20 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#EFF6FF',
-                            100: '#DBEAFE',
-                            500: '#3B82F6', // Primary Blue approximation of #2563EB for lighter elements
-                            600: '#2563EB', // Primary Blue matching image
-                            700: '#1D4ED8',
-                            900: '#1E3A8A',
+                            50: '#EFF6FF', 100: '#DBEAFE', 500: '#3B82F6', 600: '#2563EB', 700: '#1D4ED8', 900: '#1E3A8A',
                         },
                         ui: {
-                            bg: '#F8FAFC',
-                            surface: '#FFFFFF',
-                            textPrimary: '#0F172A',
-                            textSecondary: '#64748B',
-                            hover: '#F1F5F9',
-                            border: '#E2E8F0',
-                            success: '#16A34A',
-                            warning: '#F59E0B',
-                            danger: '#EF4444',
-                            info: '#0EA5E9'
+                            bg: '#F8FAFC', surface: '#FFFFFF', textPrimary: '#0F172A', textSecondary: '#64748B',
+                            hover: '#F1F5F9', border: '#E2E8F0', success: '#16A34A', warning: '#F59E0B',
+                            danger: '#EF4444', info: '#0EA5E9'
                         }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        logo: ['Syncopate', 'sans-serif']
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], logo: ['Syncopate', 'sans-serif'] }
                 }
             }
         }
     </script>
 
-    <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -58,19 +40,11 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
         
-        /* Active Sidebar Item - Matching the green accent style from the reference image, but using primary blue */
-        .sidebar-item.active {
-            background-color: #F1F5F9; /* Hover color */
-            color: #2563EB; /* Primary Blue */
-            font-weight: 600;
-            border-right: 3px solid #2563EB;
-        }
+        .sidebar-item.active { background-color: #F1F5F9; color: #2563EB; font-weight: 600; border-right: 3px solid #2563EB; }
         
         .dark body { background-color: #0F172A; color: #F8FAFC; }
         .dark .bg-ui-surface { background-color: #1E293B; border-color: #334155; }
@@ -79,37 +53,22 @@
         .dark .text-ui-textSecondary { color: #94A3B8; }
         .dark .border-ui-border { border-color: #334155; }
         .dark .hover\:bg-ui-hover:hover { background-color: #334155; }
+        .dark .sidebar-item.active { background-color: #334155; color: #3B82F6; border-right: 3px solid #3B82F6;}
         
-        /* Card styles matching the minimalist modern look */
-        .kpi-card {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 1rem;
-            padding: 1.25rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .dark .kpi-card {
-            background: #1E293B;
-            border-color: #334155;
-        }
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        /* Chart Widget Button Style from Reference */
-        .btn-widget {
-            background-color: #86EFAC; /* Light green matching the "Adjust Widget" button */
-            color: #166534;
-            font-weight: 600;
-        }
+        .kpi-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; }
+        .dark .kpi-card { background: #1E293B; border-color: #334155; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-widget { background-color: #86EFAC; color: #166534; font-weight: 600; }
         .dark .btn-widget { background-color: #16A34A; color: #FFFFFF; }
+
+        /* Form Toggle Switch */
+        .toggle-checkbox:checked { right: 0; border-color: #2563EB; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #2563EB; }
     </style>
 </head>
 <body class="bg-ui-bg text-ui-textPrimary antialiased transition-colors duration-300 overflow-hidden">
 
-    <!-- 0. شاشة تسجيل الدخول -->
+    <!-- Auth Screen -->
     <div id="auth-lock-screen" class="fixed inset-0 z-[100] bg-ui-bg flex items-center justify-center p-4 select-none">
         <div class="relative w-full max-w-md bg-ui-surface border border-ui-border rounded-3xl p-7 sm:p-9 shadow-xl">
             <div class="flex flex-col items-center text-center mb-7">
@@ -117,28 +76,21 @@
                 <h1 class="font-logo text-lg font-bold tracking-wider text-ui-textPrimary">LIZTR ESSENS</h1>
                 <p class="text-xs text-ui-textSecondary mt-1">Admin Control Center • Password: 2026</p>
             </div>
-
             <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                 <div class="relative">
                     <i class="ph ph-lock-key absolute left-4 top-1/2 -translate-y-1/2 text-ui-textSecondary text-lg"></i>
-                    <input id="admin-pass-input" type="password" placeholder="Enter Admin Password (2026)" required
-                        class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-ui-bg border border-ui-border focus:border-brand-500 text-sm text-ui-textPrimary focus:outline-none">
+                    <input id="admin-pass-input" type="password" placeholder="Enter Admin Password (2026)" required class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-ui-bg border border-ui-border focus:border-brand-500 text-sm text-ui-textPrimary focus:outline-none">
                 </div>
                 <p id="login-error-msg" class="hidden text-xs text-ui-danger text-center font-medium">كلمة السر غير صحيحة!</p>
-                <button type="submit" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md transition">
-                    Login to Dashboard
-                </button>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md transition">Login to Dashboard</button>
             </form>
-
             <div class="flex items-center gap-3 my-5">
                 <div class="h-px bg-ui-border flex-1"></div>
                 <span class="text-[11px] text-ui-textSecondary font-semibold uppercase">App Install</span>
                 <div class="h-px bg-ui-border flex-1"></div>
             </div>
-
             <button type="button" onclick="triggerInstallApp()" class="w-full py-3.5 px-4 rounded-xl bg-ui-bg hover:bg-ui-hover border border-ui-border text-brand-600 font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2.5">
-                <i class="ph-fill ph-device-tablet-speaker text-xl"></i>
-                <span>Add App to Home Screen</span>
+                <i class="ph-fill ph-device-tablet-speaker text-xl"></i><span>Add App to Home Screen</span>
             </button>
             <div id="ios-install-hint" class="hidden mt-4 p-3.5 rounded-2xl bg-ui-bg border border-ui-border text-xs text-ui-textSecondary text-center">
                 Tap <b>Share</b> then <b>"Add to Home Screen"</b>.
@@ -149,10 +101,9 @@
     <!-- MAIN DASHBOARD -->
     <div class="flex h-screen w-screen overflow-hidden">
         
-        <!-- SIDEBAR (Modern Minimalist Style) -->
+        <!-- SIDEBAR -->
         <aside class="w-64 bg-ui-surface border-r border-ui-border flex flex-col justify-between shrink-0 select-none z-30 transition-colors duration-300">
             <div class="flex-1 flex flex-col overflow-hidden">
-                <!-- Header -->
                 <div class="h-20 px-6 flex items-center border-b border-ui-border shrink-0">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-black text-xl">L</div>
@@ -163,16 +114,12 @@
                     </div>
                 </div>
 
-                <!-- Navigation -->
                 <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6 hide-scrollbar">
-                    
-                    <!-- MAIN MENU SECTION -->
+                    <!-- MAIN MENU -->
                     <div>
                         <p class="px-4 text-[10px] font-bold text-ui-textSecondary uppercase tracking-wider mb-2">Main Menu</p>
                         <div class="space-y-1">
-                            <button onclick="switchView('overview')" id="nav-overview" class="sidebar-item active w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-squares-four text-lg"></i><span>Overview</span>
-                            </button>
+                            <button onclick="switchView('overview')" id="nav-overview" class="sidebar-item active w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-squares-four text-lg"></i><span>Overview</span></button>
                             <button onclick="switchView('orders')" id="nav-orders" class="sidebar-item w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
                                 <div class="flex items-center gap-3"><i class="ph ph-shopping-bag text-lg"></i><span>Orders</span></div>
                                 <span id="nav-order-count" class="text-[10px] bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full font-bold">0</span>
@@ -181,47 +128,27 @@
                                 <div class="flex items-center gap-3"><i class="ph ph-tag text-lg"></i><span>Products</span></div>
                                 <span id="nav-prod-count" class="text-[10px] bg-ui-bg border border-ui-border text-ui-textSecondary px-2 py-0.5 rounded-full">0</span>
                             </button>
-                            <button onclick="switchView('customers')" id="nav-customers" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-users text-lg"></i><span>Customers</span>
-                            </button>
-                            <button onclick="switchView('analytics')" id="nav-analytics" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-chart-line-up text-lg"></i><span>Analytics</span>
-                            </button>
-                            <button onclick="switchView('marketing')" id="nav-marketing" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-megaphone text-lg"></i><span>Marketing</span>
-                            </button>
-                            <button onclick="switchView('discounts')" id="nav-discounts" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-ticket text-lg"></i><span>Discounts</span>
-                            </button>
-                            <button onclick="switchView('online-store')" id="nav-online-store" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-storefront text-lg"></i><span>Online Store</span>
-                            </button>
+                            <button onclick="switchView('customers')" id="nav-customers" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-users text-lg"></i><span>Customers</span></button>
+                            <button onclick="switchView('analytics')" id="nav-analytics" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-chart-line-up text-lg"></i><span>Analytics</span></button>
+                            <button onclick="switchView('marketing')" id="nav-marketing" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-megaphone text-lg"></i><span>Marketing</span></button>
+                            <button onclick="switchView('discounts')" id="nav-discounts" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-ticket text-lg"></i><span>Discounts</span></button>
+                            <button onclick="switchView('online-store')" id="nav-online-store" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-storefront text-lg"></i><span>Online Store</span></button>
                         </div>
                     </div>
 
-                    <!-- MANAGEMENT SECTION -->
+                    <!-- MANAGEMENT -->
                     <div>
                         <p class="px-4 text-[10px] font-bold text-ui-textSecondary uppercase tracking-wider mb-2">Management</p>
                         <div class="space-y-1">
-                            <button onclick="switchView('finance')" id="nav-finance" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-currency-circle-dollar text-lg"></i><span>Finance</span>
-                            </button>
-                            <button onclick="switchView('shipping-apps')" id="nav-shipping-apps" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-truck text-lg"></i><span>ShippingApps & Integrations</span>
-                            </button>
-                            <button onclick="switchView('staff')" id="nav-staff" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-identification-badge text-lg"></i><span>Staff & Permissions</span>
-                            </button>
-                            <button onclick="switchView('settings')" id="nav-settings" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all">
-                                <i class="ph ph-gear text-lg"></i><span>Settings</span>
-                            </button>
+                            <button onclick="switchView('finance')" id="nav-finance" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-currency-circle-dollar text-lg"></i><span>Finance</span></button>
+                            <button onclick="switchView('shipping-apps')" id="nav-shipping-apps" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-truck text-lg"></i><span>Apps & Integrations</span></button>
+                            <button onclick="switchView('staff')" id="nav-staff" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-identification-badge text-lg"></i><span>Staff & Permissions</span></button>
+                            <button onclick="switchView('settings')" id="nav-settings" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-ui-textSecondary hover:bg-ui-hover hover:text-ui-textPrimary transition-all"><i class="ph ph-gear text-lg"></i><span>Settings</span></button>
                         </div>
                     </div>
-
                 </nav>
             </div>
 
-            <!-- Footer area of sidebar -->
             <div class="p-4 border-t border-ui-border shrink-0">
                 <div class="flex items-center gap-3 px-2 py-2">
                     <div class="relative">
@@ -232,45 +159,28 @@
                         <p class="text-xs font-semibold text-ui-textPrimary truncate">Mohamed</p>
                         <p id="db-status-text" class="text-[10px] text-ui-textSecondary truncate">Connecting DB...</p>
                     </div>
-                    <button onclick="lockDashboard()" class="text-ui-textSecondary hover:text-ui-danger">
-                        <i class="ph ph-sign-out text-lg"></i>
-                    </button>
+                    <button onclick="lockDashboard()" class="text-ui-textSecondary hover:text-ui-danger"><i class="ph ph-sign-out text-lg"></i></button>
                 </div>
             </div>
         </aside>
 
         <!-- WORKSPACE -->
         <div class="flex-1 flex flex-col h-full overflow-hidden bg-ui-bg">
-            
-            <!-- TOPBAR -->
             <header class="h-20 bg-ui-surface border-b border-ui-border px-6 sm:px-8 flex items-center justify-between shrink-0 transition-colors duration-300">
-                <!-- Search -->
                 <div class="relative w-64 sm:w-96">
                     <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-ui-textSecondary text-lg"></i>
-                    <input oninput="handleGlobalSearch(this.value)" type="text" placeholder="Search anything..." 
-                        class="w-full pl-11 pr-4 py-2.5 bg-ui-bg border border-ui-border rounded-xl text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500 transition-colors">
+                    <input oninput="handleGlobalSearch(this.value)" type="text" placeholder="Search anything..." class="w-full pl-11 pr-4 py-2.5 bg-ui-bg border border-ui-border rounded-xl text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500 transition-colors">
                 </div>
-
-                <!-- Right Actions -->
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleTheme()" class="w-10 h-10 rounded-full border border-ui-border flex items-center justify-center text-ui-textSecondary hover:bg-ui-hover transition">
-                        <i id="theme-icon" class="ph ph-moon text-lg"></i>
-                    </button>
-                    <button class="relative w-10 h-10 rounded-full border border-ui-border flex items-center justify-center text-ui-textSecondary hover:bg-ui-hover transition">
-                        <i class="ph ph-bell text-lg"></i>
-                    </button>
-                    <a href="index.html" target="_blank" class="w-10 h-10 rounded-full border border-ui-border flex items-center justify-center text-ui-textSecondary hover:bg-ui-hover transition" title="View Store">
-                        <i class="ph ph-arrow-square-out text-lg"></i>
-                    </a>
+                    <button onclick="toggleTheme()" class="w-10 h-10 rounded-full border border-ui-border flex items-center justify-center text-ui-textSecondary hover:bg-ui-hover transition"><i id="theme-icon" class="ph ph-moon text-lg"></i></button>
+                    <button class="relative w-10 h-10 rounded-full border border-ui-border flex items-center justify-center text-ui-textSecondary hover:bg-ui-hover transition"><i class="ph ph-bell text-lg"></i></button>
+                    <a href="index.html" target="_blank" class="w-10 h-10 rounded-full border border-ui-border flex items-center justify-center text-ui-textSecondary hover:bg-ui-hover transition"><i class="ph ph-arrow-square-out text-lg"></i></a>
                 </div>
             </header>
 
-            <!-- MAIN CONTENT AREA -->
             <main class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
                 
-                <!-- ==========================================
-                     VIEW 1: OVERVIEW (DASHBOARD)
-                     ========================================== -->
+                <!-- VIEW 1: OVERVIEW -->
                 <section id="view-overview" class="space-y-6">
                     <div class="flex flex-wrap items-end justify-between gap-4">
                         <div>
@@ -278,238 +188,304 @@
                             <p class="text-sm text-ui-textSecondary mt-1">Here are your dashboard overview</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button class="flex items-center gap-2 px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-sm font-medium text-ui-textPrimary hover:bg-ui-hover transition">
-                                <i class="ph ph-funnel"></i> Filter
-                            </button>
-                            <button class="btn-widget px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2">
-                                <i class="ph ph-squares-four"></i> Adjust Widget
-                            </button>
+                            <button class="flex items-center gap-2 px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-sm font-medium text-ui-textPrimary hover:bg-ui-hover transition"><i class="ph ph-funnel"></i> Filter</button>
+                            <button class="btn-widget px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2"><i class="ph ph-squares-four"></i> Adjust Widget</button>
                         </div>
                     </div>
 
-                    <!-- 4 KPI Cards (Minimalist Style) -->
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                        <!-- Total Sales -->
                         <div class="kpi-card">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary">
-                                    <i class="ph ph-shopping-cart text-lg"></i> Total Sales
-                                </div>
+                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary"><i class="ph ph-shopping-cart text-lg"></i> Total Sales</div>
                                 <i class="ph ph-info text-ui-textSecondary"></i>
                             </div>
                             <h3 id="kpi-sales-count" class="text-3xl font-bold text-ui-textPrimary mb-3">0</h3>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-ui-textSecondary">Last week: <span class="font-medium">0</span></span>
-                                <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
-                                    <i class="ph ph-arrow-up"></i> 0%
-                                </span>
+                                <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded font-medium flex items-center gap-1"><i class="ph ph-arrow-up"></i> 0%</span>
                             </div>
                         </div>
-
-                        <!-- Total Customers -->
                         <div class="kpi-card">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary">
-                                    <i class="ph ph-users text-lg"></i> Total Customers
-                                </div>
+                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary"><i class="ph ph-users text-lg"></i> Total Customers</div>
                                 <i class="ph ph-info text-ui-textSecondary"></i>
                             </div>
                             <h3 id="kpi-customers" class="text-3xl font-bold text-ui-textPrimary mb-3">0</h3>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-ui-textSecondary">Last week: <span class="font-medium">0</span></span>
-                                <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
-                                    <i class="ph ph-arrow-up"></i> 0%
-                                </span>
+                                <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded font-medium flex items-center gap-1"><i class="ph ph-arrow-up"></i> 0%</span>
                             </div>
                         </div>
-
-                        <!-- Total Revenue -->
                         <div class="kpi-card">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary">
-                                    <i class="ph ph-money text-lg"></i> Total Revenue
-                                </div>
+                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary"><i class="ph ph-money text-lg"></i> Total Revenue</div>
                                 <i class="ph ph-info text-ui-textSecondary"></i>
                             </div>
                             <h3 id="kpi-revenue" class="text-3xl font-bold text-ui-textPrimary mb-3">0 L.E</h3>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-ui-textSecondary">Last week: <span class="font-medium">0</span></span>
-                                <span class="bg-ui-danger/10 text-ui-danger px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
-                                    <i class="ph ph-arrow-down"></i> 0%
-                                </span>
+                                <span class="bg-ui-danger/10 text-ui-danger px-1.5 py-0.5 rounded font-medium flex items-center gap-1"><i class="ph ph-arrow-down"></i> 0%</span>
                             </div>
                         </div>
-
-                        <!-- Total Products -->
                         <div class="kpi-card">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary">
-                                    <i class="ph ph-package text-lg"></i> Total Products
-                                </div>
+                                <div class="flex items-center gap-2 text-sm font-medium text-ui-textSecondary"><i class="ph ph-package text-lg"></i> Total Products</div>
                                 <i class="ph ph-info text-ui-textSecondary"></i>
                             </div>
                             <h3 id="kpi-products" class="text-3xl font-bold text-ui-textPrimary mb-3">0</h3>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-ui-textSecondary">Last week: <span class="font-medium">0</span></span>
-                                <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
-                                    <i class="ph ph-arrow-up"></i> 0%
-                                </span>
+                                <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded font-medium flex items-center gap-1"><i class="ph ph-arrow-up"></i> 0%</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Charts Row -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                        
-                        <!-- Sales Overview Donut -->
-                        <div class="bg-ui-surface border border-ui-border rounded-2xl p-6 flex flex-col justify-between shadow-sm transition-colors">
+                        <div class="bg-ui-surface border border-ui-border rounded-2xl p-6 flex flex-col justify-between shadow-sm">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-sm font-bold text-ui-textPrimary">Sales Overview</h3>
                                 <i class="ph ph-arrow-right text-ui-textSecondary"></i>
                             </div>
                             <div class="flex-1 flex flex-col items-center justify-center relative">
-                                <div class="w-40 h-40">
-                                    <canvas id="salesOverviewChart"></canvas>
-                                </div>
+                                <div class="w-40 h-40"><canvas id="salesOverviewChart"></canvas></div>
                                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
                                     <span id="sales-growth-pct" class="text-3xl font-bold text-ui-textPrimary">0%</span>
                                     <span class="text-[10px] text-ui-textSecondary">Sales Growth</span>
                                 </div>
                             </div>
-                            <div class="mt-6 text-center">
-                                <p class="text-xs text-ui-textSecondary flex items-center justify-center gap-1"><i class="ph ph-info"></i> You're 100% away from your monthly sales goal!</p>
-                            </div>
+                            <div class="mt-6 text-center"><p class="text-xs text-ui-textSecondary flex items-center justify-center gap-1"><i class="ph ph-info"></i> You're 100% away from your monthly sales goal!</p></div>
                         </div>
-
-                        <!-- Revenue Insights Bar Chart -->
-                        <div class="lg:col-span-2 bg-ui-surface border border-ui-border rounded-2xl p-6 shadow-sm transition-colors">
+                        <div class="lg:col-span-2 bg-ui-surface border border-ui-border rounded-2xl p-6 shadow-sm">
                             <div class="flex justify-between items-start mb-6">
                                 <div>
                                     <h3 class="text-sm font-bold text-ui-textPrimary mb-1">Revenue Insights</h3>
                                     <div class="flex items-center gap-2">
                                         <h2 id="chart-revenue-total" class="text-2xl font-bold text-ui-textPrimary">0.00 L.E</h2>
-                                        <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1">
-                                            <i class="ph ph-arrow-up"></i> 0%
-                                        </span>
+                                        <span class="bg-ui-success/10 text-ui-success px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1"><i class="ph ph-arrow-up"></i> 0%</span>
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end gap-3">
-                                    <select class="bg-ui-bg border border-ui-border rounded-lg px-3 py-1.5 text-xs font-medium text-ui-textPrimary focus:outline-none">
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                    </select>
+                                    <select class="bg-ui-bg border border-ui-border rounded-lg px-3 py-1.5 text-xs font-medium text-ui-textPrimary focus:outline-none"><option>Weekly</option><option>Monthly</option></select>
                                     <div class="flex items-center gap-3 text-[10px] text-ui-textSecondary">
                                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-500"></span> This week</span>
                                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-ui-border"></span> Last week</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="h-48">
-                                <canvas id="revenueInsightsChart"></canvas>
+                            <div class="h-48"><canvas id="revenueInsightsChart"></canvas></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: PRODUCTS -->
+                <section id="view-products" class="hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h1 class="text-2xl font-bold text-ui-textPrimary">Products</h1>
+                        <button onclick="openProductModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"><i class="ph ph-plus"></i> Add Product</button>
+                    </div>
+                    <div class="bg-ui-surface border border-ui-border rounded-xl overflow-hidden shadow-sm">
+                        <table class="w-full text-left">
+                            <thead class="bg-ui-bg border-b border-ui-border">
+                                <tr class="text-[11px] font-semibold text-ui-textSecondary uppercase tracking-wider">
+                                    <th class="py-3 px-4">Product Name</th><th class="py-3 px-4">Category</th><th class="py-3 px-4">Price</th><th class="py-3 px-4">Stock</th><th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body" class="divide-y divide-ui-border text-sm"></tbody>
+                        </table>
+                        <div id="empty-products" class="p-8 text-center text-ui-textSecondary hidden"><i class="ph ph-package text-4xl mb-2 opacity-50"></i><p class="text-sm">No products found.</p></div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: ORDERS -->
+                <section id="view-orders" class="hidden space-y-6">
+                    <div class="flex items-center justify-between"><h1 class="text-2xl font-bold text-ui-textPrimary">Orders</h1></div>
+                    <div class="bg-ui-surface border border-ui-border rounded-xl overflow-hidden shadow-sm">
+                        <table class="w-full text-left">
+                            <thead class="bg-ui-bg border-b border-ui-border">
+                                <tr class="text-[11px] font-semibold text-ui-textSecondary uppercase tracking-wider">
+                                    <th class="py-3 px-4">Order #</th><th class="py-3 px-4">Customer</th><th class="py-3 px-4">Items</th><th class="py-3 px-4">Total</th><th class="py-3 px-4">Status</th><th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="divide-y divide-ui-border text-sm"></tbody>
+                        </table>
+                        <div id="empty-orders" class="p-8 text-center text-ui-textSecondary hidden"><i class="ph ph-shopping-bag text-4xl mb-2 opacity-50"></i><p class="text-sm">No orders yet.</p></div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: CUSTOMERS -->
+                <section id="view-customers" class="hidden space-y-6">
+                    <div class="flex items-center justify-between"><h1 class="text-2xl font-bold text-ui-textPrimary">Customers</h1></div>
+                    <div class="bg-ui-surface border border-ui-border rounded-xl overflow-hidden shadow-sm">
+                        <table class="w-full text-left">
+                            <thead class="bg-ui-bg border-b border-ui-border">
+                                <tr class="text-[11px] font-semibold text-ui-textSecondary uppercase tracking-wider">
+                                    <th class="py-3 px-4">Name</th><th class="py-3 px-4">Email / Phone</th><th class="py-3 px-4">Location</th><th class="py-3 px-4">Total Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table-body" class="divide-y divide-ui-border text-sm"></tbody>
+                        </table>
+                        <div id="empty-customers" class="p-8 text-center text-ui-textSecondary hidden"><i class="ph ph-users text-4xl mb-2 opacity-50"></i><p class="text-sm">No customers yet.</p></div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: ANALYTICS -->
+                <section id="view-analytics" class="hidden space-y-6">
+                    <h1 class="text-2xl font-bold text-ui-textPrimary">Analytics</h1>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div class="bg-ui-surface border border-ui-border rounded-xl p-6">
+                            <h3 class="text-sm font-bold text-ui-textPrimary mb-4">Store Conversion Rate</h3>
+                            <div class="h-48 flex items-end justify-center gap-4 text-ui-textSecondary text-xs">
+                                <div class="flex flex-col items-center"><div class="w-16 bg-ui-border rounded-t-md h-32"></div><span class="mt-2">Visitors (0)</span></div>
+                                <div class="flex flex-col items-center"><div class="w-16 bg-brand-100 rounded-t-md h-12"></div><span class="mt-2">Cart (0)</span></div>
+                                <div class="flex flex-col items-center"><div class="w-16 bg-brand-500 rounded-t-md h-4"></div><span class="mt-2">Purchased (0)</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-ui-surface border border-ui-border rounded-xl p-6">
+                            <h3 class="text-sm font-bold text-ui-textPrimary mb-4">Top Locations</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between text-sm"><span class="text-ui-textSecondary">Cairo</span><span class="font-bold">0%</span></div>
+                                <div class="w-full bg-ui-bg rounded-full h-2"><div class="bg-brand-500 h-2 rounded-full" style="width: 0%"></div></div>
+                                <div class="flex justify-between text-sm"><span class="text-ui-textSecondary">Alexandria</span><span class="font-bold">0%</span></div>
+                                <div class="w-full bg-ui-bg rounded-full h-2"><div class="bg-brand-500 h-2 rounded-full" style="width: 0%"></div></div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- ==========================================
-                     VIEW 2: PRODUCTS
-                     ========================================== -->
-                <section id="view-products" class="hidden space-y-6">
+                <!-- VIEW 6: MARKETING -->
+                <section id="view-marketing" class="hidden space-y-6">
+                    <h1 class="text-2xl font-bold text-ui-textPrimary">Marketing Campaigns</h1>
+                    <div class="bg-ui-surface border border-ui-border rounded-xl p-6 text-center text-ui-textSecondary">
+                        <i class="ph ph-megaphone text-4xl mb-3 opacity-50"></i>
+                        <p class="mb-4">Create your first SMS or Email campaign.</p>
+                        <button class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Create Campaign</button>
+                    </div>
+                </section>
+
+                <!-- VIEW 7: DISCOUNTS -->
+                <section id="view-discounts" class="hidden space-y-6">
                     <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-bold text-ui-textPrimary">Products</h1>
-                        <button onclick="openProductModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                            <i class="ph ph-plus"></i> Add Product
-                        </button>
+                        <h1 class="text-2xl font-bold text-ui-textPrimary">Discounts</h1>
+                        <button class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Create Discount</button>
                     </div>
                     <div class="bg-ui-surface border border-ui-border rounded-xl overflow-hidden shadow-sm">
                         <table class="w-full text-left">
                             <thead class="bg-ui-bg border-b border-ui-border">
                                 <tr class="text-[11px] font-semibold text-ui-textSecondary uppercase tracking-wider">
-                                    <th class="py-3 px-4">Product Name</th>
-                                    <th class="py-3 px-4">Category</th>
-                                    <th class="py-3 px-4">Price</th>
-                                    <th class="py-3 px-4">Stock</th>
-                                    <th class="py-3 px-4 text-right">Actions</th>
+                                    <th class="py-3 px-4">Code</th><th class="py-3 px-4">Value</th><th class="py-3 px-4">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="products-table-body" class="divide-y divide-ui-border text-sm">
-                                <!-- Data rendered here -->
+                            <tbody class="divide-y divide-ui-border text-sm">
+                                <tr><td colspan="3" class="p-8 text-center text-ui-textSecondary">No active discounts.</td></tr>
                             </tbody>
                         </table>
-                        <div id="empty-products" class="p-8 text-center text-ui-textSecondary hidden">
-                            <i class="ph ph-package text-4xl mb-2 opacity-50"></i>
-                            <p class="text-sm">No products found. Add your first product.</p>
+                    </div>
+                </section>
+
+                <!-- VIEW 8: ONLINE STORE -->
+                <section id="view-online-store" class="hidden space-y-6">
+                    <h1 class="text-2xl font-bold text-ui-textPrimary">Online Store Settings</h1>
+                    <div class="bg-ui-surface border border-ui-border rounded-xl p-6 space-y-4 max-w-2xl">
+                        <div>
+                            <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Announcement Bar Text</label>
+                            <input type="text" value="Welcome to LIZTR ESSENS" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Store Logo URL</label>
+                            <input type="text" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
+                        </div>
+                        <button class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Save Theme</button>
+                    </div>
+                </section>
+
+                <!-- VIEW 9: FINANCE -->
+                <section id="view-finance" class="hidden space-y-6">
+                    <h1 class="text-2xl font-bold text-ui-textPrimary">Finance & Payouts</h1>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="bg-ui-surface border border-ui-border rounded-xl p-6">
+                            <p class="text-sm font-medium text-ui-textSecondary mb-1">Available Balance</p>
+                            <h2 class="text-3xl font-bold text-ui-textPrimary">0.00 L.E</h2>
+                            <button class="mt-4 w-full bg-ui-bg border border-ui-border text-ui-textPrimary px-4 py-2 rounded-lg text-sm font-medium">Request Payout</button>
+                        </div>
+                        <div class="bg-ui-surface border border-ui-border rounded-xl p-6">
+                            <p class="text-sm font-medium text-ui-textSecondary mb-1">Bank Account</p>
+                            <p class="text-ui-textPrimary font-medium">Not connected yet.</p>
+                            <button class="mt-4 text-brand-600 text-sm font-medium">Add Bank Details</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- ==========================================
-                     VIEW 3: ORDERS
-                     ========================================== -->
-                <section id="view-orders" class="hidden space-y-6">
+                <!-- VIEW 10: SHIPPING & APPS -->
+                <section id="view-shipping-apps" class="hidden space-y-6">
+                    <h1 class="text-2xl font-bold text-ui-textPrimary">Apps & Integrations</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Integration Card -->
+                        <div class="bg-ui-surface border border-ui-border rounded-xl p-5 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-red-100 text-red-600 rounded-lg flex items-center justify-center"><i class="ph-bold ph-package text-xl"></i></div>
+                                <div><p class="font-bold text-sm text-ui-textPrimary">Aramex Shipping</p><p class="text-[11px] text-ui-textSecondary">Automated waybills</p></div>
+                            </div>
+                            <button class="bg-ui-bg border border-ui-border px-3 py-1.5 rounded-lg text-xs font-medium">Connect</button>
+                        </div>
+                        <div class="bg-ui-surface border border-ui-border rounded-xl p-5 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center"><i class="ph-bold ph-whatsapp-logo text-xl"></i></div>
+                                <div><p class="font-bold text-sm text-ui-textPrimary">WhatsApp API</p><p class="text-[11px] text-ui-textSecondary">Order confirmations</p></div>
+                            </div>
+                            <button class="bg-ui-bg border border-ui-border px-3 py-1.5 rounded-lg text-xs font-medium">Connect</button>
+                        </div>
+                        <div class="bg-ui-surface border border-ui-border rounded-xl p-5 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-black text-white rounded-lg flex items-center justify-center"><i class="ph-bold ph-tiktok-logo text-xl"></i></div>
+                                <div><p class="font-bold text-sm text-ui-textPrimary">TikTok Pixel</p><p class="text-[11px] text-ui-textSecondary">Track conversions</p></div>
+                            </div>
+                            <button class="bg-ui-bg border border-ui-border px-3 py-1.5 rounded-lg text-xs font-medium">Connect</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 11: STAFF -->
+                <section id="view-staff" class="hidden space-y-6">
                     <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-bold text-ui-textPrimary">Orders</h1>
+                        <h1 class="text-2xl font-bold text-ui-textPrimary">Staff & Permissions</h1>
+                        <button class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Add Staff</button>
                     </div>
-                    <div class="bg-ui-surface border border-ui-border rounded-xl overflow-hidden shadow-sm">
-                        <table class="w-full text-left">
-                            <thead class="bg-ui-bg border-b border-ui-border">
-                                <tr class="text-[11px] font-semibold text-ui-textSecondary uppercase tracking-wider">
-                                    <th class="py-3 px-4">Order #</th>
-                                    <th class="py-3 px-4">Customer</th>
-                                    <th class="py-3 px-4">Items</th>
-                                    <th class="py-3 px-4">Total</th>
-                                    <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orders-table-body" class="divide-y divide-ui-border text-sm">
-                                <!-- Data rendered here -->
-                            </tbody>
-                        </table>
-                        <div id="empty-orders" class="p-8 text-center text-ui-textSecondary hidden">
-                            <i class="ph ph-shopping-bag text-4xl mb-2 opacity-50"></i>
-                            <p class="text-sm">No orders yet. They will appear here when customers purchase.</p>
+                    <div class="bg-ui-surface border border-ui-border rounded-xl overflow-hidden">
+                        <div class="p-4 flex items-center justify-between border-b border-ui-border">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold">M</div>
+                                <div><p class="text-sm font-bold text-ui-textPrimary">Mohamed</p><p class="text-xs text-ui-textSecondary">Owner</p></div>
+                            </div>
+                            <span class="bg-ui-bg border border-ui-border px-2 py-1 rounded text-xs">Full Access</span>
                         </div>
                     </div>
                 </section>
 
-                <!-- ==========================================
-                     VIEW 4: CUSTOMERS
-                     ========================================== -->
-                <section id="view-customers" class="hidden space-y-6">
-                    <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-bold text-ui-textPrimary">Customers</h1>
-                    </div>
-                    <div class="bg-ui-surface border border-ui-border rounded-xl overflow-hidden shadow-sm">
-                        <table class="w-full text-left">
-                            <thead class="bg-ui-bg border-b border-ui-border">
-                                <tr class="text-[11px] font-semibold text-ui-textSecondary uppercase tracking-wider">
-                                    <th class="py-3 px-4">Name</th>
-                                    <th class="py-3 px-4">Email / Phone</th>
-                                    <th class="py-3 px-4">Location</th>
-                                    <th class="py-3 px-4">Total Spent</th>
-                                </tr>
-                            </thead>
-                            <tbody id="customers-table-body" class="divide-y divide-ui-border text-sm">
-                                <!-- Data rendered here -->
-                            </tbody>
-                        </table>
-                        <div id="empty-customers" class="p-8 text-center text-ui-textSecondary hidden">
-                            <i class="ph ph-users text-4xl mb-2 opacity-50"></i>
-                            <p class="text-sm">No customers yet.</p>
+                <!-- VIEW 12: SETTINGS -->
+                <section id="view-settings" class="hidden space-y-6">
+                    <h1 class="text-2xl font-bold text-ui-textPrimary">Store Settings</h1>
+                    <div class="bg-ui-surface border border-ui-border rounded-xl p-6 max-w-2xl space-y-5">
+                        <div>
+                            <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Store Name</label>
+                            <input type="text" value="LIZTR ESSENS" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Contact Email</label>
+                            <input type="email" value="vortx.dev1@gmail.com" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Currency</label>
+                            <select class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm"><option>Egyptian Pound (EGP)</option><option>USD</option></select>
+                        </div>
+                        <div class="pt-4 border-t border-ui-border">
+                            <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Update Admin Password</label>
+                            <div class="flex gap-2">
+                                <input type="text" placeholder="New password" class="flex-1 px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm">
+                                <button class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Update</button>
+                            </div>
                         </div>
                     </div>
                 </section>
-
-                <!-- Placeholder for other sections to prevent errors if clicked -->
-                <section id="view-analytics" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Analytics</h1><p class="text-ui-textSecondary">Detailed reporting coming soon.</p></section>
-                <section id="view-marketing" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Marketing</h1><p class="text-ui-textSecondary">Marketing campaigns coming soon.</p></section>
-                <section id="view-discounts" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Discounts</h1><p class="text-ui-textSecondary">Discount codes coming soon.</p></section>
-                <section id="view-online-store" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Online Store</h1><p class="text-ui-textSecondary">Store preferences coming soon.</p></section>
-                <section id="view-finance" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Finance</h1><p class="text-ui-textSecondary">Financial overview coming soon.</p></section>
-                <section id="view-shipping-apps" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Shipping & Apps</h1><p class="text-ui-textSecondary">Integrations coming soon.</p></section>
-                <section id="view-staff" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Staff & Permissions</h1><p class="text-ui-textSecondary">Staff management coming soon.</p></section>
-                <section id="view-settings" class="hidden space-y-6"><h1 class="text-2xl font-bold text-ui-textPrimary">Settings</h1><p class="text-ui-textSecondary">System settings coming soon.</p></section>
 
             </main>
         </div>
@@ -526,31 +502,31 @@
                 <input type="hidden" id="prod-id">
                 <div>
                     <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Product Name</label>
-                    <input id="prod-name" required type="text" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500">
+                    <input id="prod-name" required type="text" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Price (L.E)</label>
-                        <input id="prod-price" required type="number" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500">
+                        <input id="prod-price" required type="number" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Compare Price (L.E)</label>
-                        <input id="prod-old-price" type="number" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500">
+                        <input id="prod-old-price" type="number" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Category</label>
-                        <input id="prod-category" type="text" placeholder="e.g. Solid Collection" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500">
+                        <input id="prod-category" type="text" placeholder="e.g. Solid Collection" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Stock</label>
-                        <input id="prod-stock" required type="number" value="10" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500">
+                        <input id="prod-stock" required type="number" value="10" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-ui-textSecondary mb-1">Image URL</label>
-                    <input id="prod-img" required type="url" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm text-ui-textPrimary focus:outline-none focus:border-brand-500">
+                    <input id="prod-img" required type="url" class="w-full px-3 py-2 rounded-lg bg-ui-bg border border-ui-border text-sm focus:border-brand-500">
                 </div>
                 <div class="flex justify-end gap-3 pt-4">
                     <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-ui-textSecondary bg-ui-bg border border-ui-border hover:bg-ui-hover">Cancel</button>
@@ -562,29 +538,22 @@
 
     <!-- JAVASCRIPT & SUPABASE -->
     <script>
-        // Supabase Init (Database is currently empty)
         const SUPABASE_URL = 'https://wmnqwuvjfmubfdnygixn.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_ScRBm4HCXF5FlK3lzi4PKg_m_hvD00f';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let products = [];
         let orders = [];
-        
         let salesChartInstance = null;
         let revenueChartInstance = null;
-
-        // PWA Setup
         let deferredInstallPrompt = null;
+
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; });
         function triggerInstallApp() {
-            if (deferredInstallPrompt) {
-                deferredInstallPrompt.prompt();
-            } else {
-                document.getElementById('ios-install-hint').classList.toggle('hidden');
-            }
+            if (deferredInstallPrompt) deferredInstallPrompt.prompt();
+            else document.getElementById('ios-install-hint').classList.toggle('hidden');
         }
 
-        // Login
         function handleAdminLogin(e) {
             e.preventDefault();
             if (document.getElementById('admin-pass-input').value.trim() === '2026') {
@@ -595,7 +564,6 @@
             }
         }
 
-        // Theme Toggle (Light/Dark Mode matching Color System)
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             const icon = document.getElementById('theme-icon');
@@ -606,10 +574,9 @@
                 icon.classList.replace('ph-sun', 'ph-moon');
                 localStorage.setItem('liztr_theme', 'light');
             }
-            initOrUpdateCharts(); // Refresh chart colors based on theme
+            initOrUpdateCharts();
         }
         
-        // Navigation
         function switchView(viewName) {
             const views = ['overview', 'orders', 'products', 'customers', 'analytics', 'marketing', 'discounts', 'online-store', 'finance', 'shipping-apps', 'staff', 'settings'];
             views.forEach(v => {
@@ -624,7 +591,6 @@
             if(activeNav) activeNav.classList.add('active');
         }
 
-        // Data Fetching & Sync
         async function fetchAllFromSupabase() {
             const badgeDot = document.getElementById('db-status-dot');
             const badgeText = document.getElementById('db-status-text');
@@ -652,7 +618,6 @@
             }
         }
 
-        // Realtime Subscription
         function subscribeRealtimeOrders() {
             supabaseClient.channel('live-orders')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
@@ -661,8 +626,7 @@
                     renderOrders();
                     updateKPIs();
                     initOrUpdateCharts();
-                })
-                .subscribe();
+                }).subscribe();
         }
 
         function playOrderAlert() {
@@ -679,14 +643,9 @@
             osc.stop(ctx.currentTime + 0.3);
         }
 
-        // Update Dashboard Data
         function updateKPIs() {
             const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
-            
-            // Assuming 1 item per order for simple "Total Sales" count based on the reference image style
             const totalSales = orders.length; 
-            
-            // Unique customers based on phone or email
             const uniqueCustomers = new Set(orders.map(o => o.phone || o.email)).size;
 
             document.getElementById('kpi-sales-count').textContent = totalSales;
@@ -698,12 +657,10 @@
             document.getElementById('nav-prod-count').textContent = products.length;
             document.getElementById('nav-order-count').textContent = orders.length;
 
-            // Simple fake growth calculation based on empty DB (always 100% if we have > 0 revenue)
             const growthPct = totalRevenue > 0 ? 100 : 0;
             document.getElementById('sales-growth-pct').textContent = `${growthPct}%`;
         }
 
-        // Render Tables
         function renderProducts() {
             const tbody = document.getElementById('products-table-body');
             const emptyState = document.getElementById('empty-products');
@@ -758,7 +715,7 @@
                     <td class="py-3 px-4 text-xs text-ui-textSecondary truncate max-w-[150px]">${o.notes || 'Items'}</td>
                     <td class="py-3 px-4 font-medium text-ui-textPrimary">${o.total} L.E</td>
                     <td class="py-3 px-4">
-                        <select onchange="updateOrderStatusSupabase('${o.id}', this.value)" class="bg-transparent text-xs font-medium text-ui-textPrimary focus:outline-none cursor-pointer">
+                        <select onchange="updateOrderStatusSupabase('${o.id}', this.value)" class="bg-transparent text-xs font-medium text-ui-textPrimary focus:outline-none cursor-pointer border border-ui-border rounded px-1 py-0.5">
                             <option value="new" ${o.status === 'new' ? 'selected' : ''}>New</option>
                             <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
                             <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
@@ -771,7 +728,6 @@
                 </tr>
             `).join('');
 
-            // Render Customers based on Orders data
             const uniqueCustomersMap = new Map();
             orders.forEach(o => {
                 if(!uniqueCustomersMap.has(o.phone)) {
@@ -795,14 +751,8 @@
             `).join('');
         }
 
-        // DB Actions
-        function openProductModal() {
-            document.getElementById('product-form').reset();
-            document.getElementById('product-modal').classList.replace('hidden', 'flex');
-        }
-        function closeProductModal() {
-            document.getElementById('product-modal').classList.replace('flex', 'hidden');
-        }
+        function openProductModal() { document.getElementById('product-form').reset(); document.getElementById('product-modal').classList.replace('hidden', 'flex'); }
+        function closeProductModal() { document.getElementById('product-modal').classList.replace('flex', 'hidden'); }
 
         async function saveProductToSupabase(e) {
             e.preventDefault();
@@ -814,109 +764,59 @@
             const image_url = document.getElementById('prod-img').value.trim();
             const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString().slice(-4);
 
-            await supabaseClient.from('products').insert([{
-                name, slug, price, compare_at_price, category, stock, image_url
-            }]);
-            
-            closeProductModal();
-            fetchAllFromSupabase();
+            await supabaseClient.from('products').insert([{ name, slug, price, compare_at_price, category, stock, image_url }]);
+            closeProductModal(); fetchAllFromSupabase();
         }
 
-        async function deleteProductFromSupabase(id) {
-            await supabaseClient.from('products').delete().eq('id', id);
-            fetchAllFromSupabase();
-        }
+        async function deleteProductFromSupabase(id) { await supabaseClient.from('products').delete().eq('id', id); fetchAllFromSupabase(); }
+        async function updateOrderStatusSupabase(id, status) { await supabaseClient.from('orders').update({ status }).eq('id', id); }
+        async function deleteOrderFromSupabase(id) { await supabaseClient.from('order_items').delete().eq('order_id', id); await supabaseClient.from('orders').delete().eq('id', id); fetchAllFromSupabase(); }
 
-        async function updateOrderStatusSupabase(id, status) {
-            await supabaseClient.from('orders').update({ status }).eq('id', id);
-        }
-
-        async function deleteOrderFromSupabase(id) {
-            await supabaseClient.from('order_items').delete().eq('order_id', id);
-            await supabaseClient.from('orders').delete().eq('id', id);
-            fetchAllFromSupabase();
-        }
-
-        // Charts Setup matching the reference images
         function initOrUpdateCharts() {
             const isDark = document.documentElement.classList.contains('dark');
             const gridColor = isDark ? '#334155' : '#F1F5F9';
-            const primaryColor = '#2563EB'; // Primary Blue
-            const secondaryColor = '#86EFAC'; // Light Green
+            const primaryColor = '#2563EB'; 
+            const secondaryColor = '#86EFAC'; 
             const textColor = isDark ? '#94A3B8' : '#64748B';
 
-            // Base data - mostly zeros since DB is empty, but we show structure
             let chartData = [0, 0, 0, 0, 0, 0, 0];
-            
-            // If we have orders, populate today's bar (simplified for demo)
             if(orders.length > 0) {
                 const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
-                chartData[chartData.length - 1] = totalRevenue; // Put it in the last day
+                chartData[chartData.length - 1] = totalRevenue; 
             }
 
-            // Sales Overview Donut (Half circle)
             const ctxDonut = document.getElementById('salesOverviewChart').getContext('2d');
             if(salesChartInstance) salesChartInstance.destroy();
-            
             salesChartInstance = new Chart(ctxDonut, {
                 type: 'doughnut',
                 data: {
                     datasets: [{
-                        data: orders.length > 0 ? [100, 0] : [0, 100], // 100% full if we have sales, else empty
+                        data: orders.length > 0 ? [100, 0] : [0, 100], 
                         backgroundColor: [secondaryColor, gridColor],
-                        borderWidth: 0,
-                        circumference: 180,
-                        rotation: 270,
-                        borderRadius: 5
+                        borderWidth: 0, circumference: 180, rotation: 270, borderRadius: 5
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '80%',
-                    plugins: { tooltip: { enabled: false }, legend: { display: false } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { tooltip: { enabled: false }, legend: { display: false } } }
             });
 
-            // Revenue Insights Bar Chart
             const ctxBar = document.getElementById('revenueInsightsChart').getContext('2d');
             if(revenueChartInstance) revenueChartInstance.destroy();
-
             revenueChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
                     labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                    datasets: [{
-                        label: 'This week',
-                        data: chartData,
-                        backgroundColor: primaryColor,
-                        borderRadius: 8,
-                        barThickness: 20
-                    },
-                    {
-                        label: 'Last week',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        backgroundColor: gridColor,
-                        borderRadius: 8,
-                        barThickness: 20
-                    }]
+                    datasets: [
+                        { label: 'This week', data: chartData, backgroundColor: primaryColor, borderRadius: 8, barThickness: 20 },
+                        { label: 'Last week', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: gridColor, borderRadius: 8, barThickness: 20 }
+                    ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { display: false, beginAtZero: true },
-                        x: { 
-                            grid: { display: false },
-                            ticks: { color: textColor, font: { size: 10 } }
-                        }
-                    }
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    scales: { y: { display: false, beginAtZero: true }, x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } } }
                 }
             });
         }
 
-        // Initialize
         window.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('liztr_theme');
             if(savedTheme === 'dark') {
