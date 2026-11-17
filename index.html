@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LIZTR ESSENS | Tablet Admin Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#7c3aed',
+                            600: '#6d28d9',
+                            700: '#5b21b6',
+                            900: '#131126',
+                            950: '#0c0a18'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        logo: ['Syncopate', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.35); border-radius: 9999px; }
+        
+        .sidebar-item.active {
+            background: linear-gradient(90deg, #7c3aed 0%, #6d28d9 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 15px -3px rgba(124, 58, 237, 0.45);
+        }
+        .tab-btn.active {
+            background-color: #ede9fe;
+            color: #6d28d9;
+            font-weight: 700;
+        }
+        .dark .tab-btn.active {
+            background-color: rgba(124, 58, 237, 0.25);
+            color: #c4b5fd;
+        }
+    </style>
+</head>
+<body class="bg-[#F6F6F9] dark:bg-[#0B0A14] text-slate-800 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-300 overflow-hidden">
+
+    <!-- ==========================================
+         PIN LOCK SCREEN OVERLAY (DEFAULT PIN: 2026)
+         ========================================== -->
+    <div id="pin-lock-screen" class="fixed inset-0 z-[100] bg-[#110F21] flex flex-col items-center justify-center p-6 text-white transition-opacity duration-300">
+        <div class="w-full max-w-sm bg-[#1A1730] border border-white/10 rounded-3xl p-8 shadow-2xl text-center">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-white font-black text-2xl mx-auto mb-4 shadow-lg shadow-brand-500/30">
+                L
+            </div>
+            <h2 class="font-logo text-lg font-bold tracking-wider uppercase">LIZTR ESSENS</h2>
+            <p class="text-xs text-slate-400 mt-1 mb-6">Enter Admin Passcode to unlock dashboard</p>
+            
+            <form onsubmit="verifyPin(event)" class="space-y-4">
+                <input id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="••••" required
+                    class="w-full text-center tracking-[0.6em] text-2xl font-extrabold py-3.5 rounded-2xl bg-black/40 border border-white/15 focus:border-brand-500 focus:outline-none text-white">
+                <p id="pin-error" class="text-xs text-rose-400 hidden">Incorrect PIN code! Default is 2026.</p>
+                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-brand-500/30 transition text-sm">
+                    Unlock Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- REALTIME ORDER TOAST NOTIFICATION -->
+    <div id="order-toast" class="fixed top-5 right-5 z-[90] hidden bg-emerald-600 text-white px-5 py-4 rounded-2xl shadow-2xl items-center gap-3.5 animate-bounce">
+        <i class="ph-fill ph-bell-ringing text-2xl"></i>
+        <div>
+            <p class="text-xs font-extrabold uppercase tracking-wider">New Order Received!</p>
+            <p id="order-toast-text" class="text-xs opacity-90 mt-0.5">Order #LE-1001 just arrived.</p>
+        </div>
+    </div>
+
+    <div class="flex h-screen w-screen overflow-hidden">
+        
+        <!-- ==========================================
+             SIDEBAR (Shopify & Modern SaaS Tablet UI)
+             ========================================== -->
+        <aside class="w-64 bg-[#110F21] dark:bg-[#07060E] text-slate-300 flex flex-col justify-between shrink-0 select-none z-30 border-r border-white/5">
+            <div>
+                <div class="h-20 px-6 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand-500/30">
+                            L
+                        </div>
+                        <div>
+                            <span class="font-logo text-sm font-bold tracking-wider text-white block">LIZTR</span>
+                            <span class="text-[11px] text-slate-400 font-medium">Store Admin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-180px)]">
+                    <button onclick="switchView('dashboard')" id="nav-dashboard" class="sidebar-item active w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-sm font-medium transition-all hover:text-white hover:bg-white/5">
+                        <i class="ph ph-squares-four text-xl"></i>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <button onclick="switchView('products')" id="nav-products" class="sidebar-item w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium transition-all hover:text-white hover:bg-white/5">
+                        <div class="flex items-center gap-3.5">
+                            <i class="ph ph-t-shirt text-xl"></i>
+                            <span>Products</span>
+                        </div>
+                        <span id="nav-prod-count" class="text-xs bg-white/10 text-slate-200 px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <button onclick="switchView('orders')" id="nav-orders" class="sidebar-item w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium transition-all hover:text-white hover:bg-white/5">
+                        <div class="flex items-center gap-3.5">
+                            <i class="ph ph-shopping-bag text-xl"></i>
+                            <span>Orders</span>
+                        </div>
+                        <span id="nav-order-count" class="text-xs bg-brand-500 text-white px-2.5 py-0.5 rounded-full font-semibold shadow">0</span>
+                    </button>
+
+                    <button onclick="switchView('customers')" id="nav-customers" class="sidebar-item w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-sm font-medium transition-all hover:text-white hover:bg-white/5">
+                        <i class="ph ph-users text-xl"></i>
+                        <span>Customers</span>
+                    </button>
+
+                    <button onclick="switchView('analytics')" id="nav-analytics" class="sidebar-item w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-sm font-medium transition-all hover:text-white hover:bg-white/5">
+                        <i class="ph ph-chart-line-up text-xl"></i>
+                        <span>Analytics</span>
+                    </button>
+
+                    <button onclick="switchView('marketing')" id="nav-marketing" class="sidebar-item w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-sm font-medium transition-all hover:text-white hover:bg-white/5">
+                        <i class="ph ph-megaphone text-xl"></i>
+                        <span>Marketing</span>
+                    </button>
+
+                    <button onclick="switchView('settings')" id="nav-settings" class="sidebar-item w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-sm font-medium transition-all hover:text-white hover:bg-white/5">
+                        <i class="ph ph-gear text-xl"></i>
+                        <span>Settings</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Store Quick Card Footer -->
+            <div class="p-4 space-y-2">
+                <div class="p-3.5 rounded-2xl bg-gradient-to-r from-brand-900 to-[#1e183c] border border-brand-500/20 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-white">LIZTR Store</p>
+                        <p id="db-status-badge" class="text-[11px] text-emerald-400 flex items-center gap-1 mt-0.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Connecting...
+                        </p>
+                    </div>
+                    <a href="index.html" target="_blank" title="Open Storefront" class="w-8 h-8 rounded-lg bg-brand-500/20 hover:bg-brand-500 text-brand-100 flex items-center justify-center transition">
+                        <i class="ph ph-arrow-up-right text-sm"></i>
+                    </a>
+                </div>
+                <button onclick="lockDashboard()" class="w-full py-2 text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition">
+                    <i class="ph ph-lock-key"></i> Lock Screen
+                </button>
+            </div>
+        </aside>
+
+        <!-- ==========================================
+             MAIN WORKSPACE
+             ========================================== -->
+        <div class="flex-1 flex flex-col h-full overflow-hidden">
+            
+            <!-- TOPBAR -->
+            <header class="h-20 bg-white/80 dark:bg-[#131122]/80 backdrop-blur-md border-b border-slate-200/80 dark:border-white/5 px-6 sm:px-8 flex items-center justify-between shrink-0 z-20">
+                <!-- Search Bar -->
+                <div class="relative w-64 sm:w-96">
+                    <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                    <input id="global-search" oninput="handleGlobalSearch(this.value)" type="text" placeholder="Search anything... ⌘K" 
+                        class="w-full pl-11 pr-12 py-2.5 bg-slate-100/90 dark:bg-white/5 border border-transparent focus:border-brand-500 rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none transition">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400 bg-white dark:bg-white/10 px-1.5 py-0.5 rounded border border-slate-200 dark:border-white/10">⌘K</span>
+                </div>
+
+                <!-- Right Actions: Day/Night Mode, Sound Test, Refresh, Admin -->
+                <div class="flex items-center gap-3">
+                    <!-- Day / Night Mode Button -->
+                    <button onclick="toggleTheme()" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-amber-300 font-semibold text-xs transition shadow-sm">
+                        <i id="theme-icon" class="ph-fill ph-sun text-lg text-amber-500"></i>
+                        <span id="theme-label">Day Mode</span>
+                    </button>
+
+                    <!-- Refresh Data -->
+                    <button onclick="loadAllFromSupabase()" title="Sync with Supabase" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 flex items-center justify-center text-slate-600 dark:text-slate-300 transition">
+                        <i class="ph ph-arrows-clockwise text-xl"></i>
+                    </button>
+
+                    <!-- Sound Notification Test -->
+                    <button onclick="playOrderAlert()" title="Test Order Bell" class="relative w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 flex items-center justify-center text-slate-600 dark:text-slate-300 transition">
+                        <i class="ph ph-bell text-xl"></i>
+                        <span class="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-[#131122]"></span>
+                    </button>
+
+                    <!-- Admin Profile -->
+                    <div class="flex items-center gap-2.5 pl-2 border-l border-slate-200 dark:border-white/10">
+                        <div class="w-9 h-9 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center text-sm shadow">M</div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-xs font-bold text-slate-800 dark:text-white leading-tight">Admin</p>
+                            <p class="text-[10px] text-slate-400">Mohamed</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE CONTENT AREA -->
+            <main class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
+
+                <!-- ==========================================
+                     VIEW 1: DASHBOARD OVERVIEW
+                     ========================================== -->
+                <section id="view-dashboard" class="space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Dashboard</h1>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Welcome back! Here's what's happening with your store today.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="openProductModal()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md shadow-brand-500/25 transition">
+                                <i class="ph ph-plus-bold"></i> Add Product
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 KPI Cards -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                        <div class="bg-white dark:bg-[#161426] p-5 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-500/15 text-brand-500 flex items-center justify-center text-2xl shrink-0">
+                                <i class="ph-fill ph-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Total Sales</p>
+                                <h3 id="kpi-sales" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 L.E</h3>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 mt-1">
+                                    <i class="ph-bold ph-arrow-up"></i> +12.5%
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#161426] p-5 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-500/15 text-blue-500 flex items-center justify-center text-2xl shrink-0">
+                                <i class="ph-fill ph-shopping-bag"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Total Orders</p>
+                                <h3 id="kpi-orders" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">0</h3>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 mt-1">
+                                    <i class="ph-bold ph-arrow-up"></i> +8.2%
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#161426] p-5 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-2xl shrink-0">
+                                <i class="ph-fill ph-users"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Total Customers</p>
+                                <h3 id="kpi-customers" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">0</h3>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 mt-1">
+                                    <i class="ph-bold ph-arrow-up"></i> +14.1%
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#161426] p-5 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/15 text-amber-500 flex items-center justify-center text-2xl shrink-0">
+                                <i class="ph-fill ph-coins"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-400">Net Profit (Est.)</p>
+                                <h3 id="kpi-profit" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 L.E</h3>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 mt-1">
+                                    <i class="ph-bold ph-arrow-up"></i> +16.8%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Row: Sales Overview Chart + Top Products -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-[#161426] p-6 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Sales Overview</h3>
+                                    <p class="text-xs text-slate-400">Weekly store revenue</p>
+                                </div>
+                                <div class="flex items-center gap-4 text-xs font-medium">
+                                    <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span> This Period</span>
+                                </div>
+                            </div>
+                            <div class="h-64">
+                                <canvas id="salesOverviewChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#161426] p-6 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-5">
+                                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Top Products</h3>
+                                    <button onclick="switchView('products')" class="text-xs font-semibold text-brand-500 hover:underline flex items-center gap-1">See All <i class="ph ph-arrow-right"></i></button>
+                                </div>
+                                <div id="top-products-list" class="space-y-4"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Promo Banner -->
+                    <div class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[#2e1065] via-[#5b21b6] to-[#7c3aed] p-6 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-5">
+                            <img src="https://res.cloudinary.com/dyhlzplzb/image/upload/v1787450019/1_3a9e03c1-ce69-4e3b-b921-337b1b4e8a91_fnryux.png" alt="Promo" class="w-16 h-16 rounded-xl object-cover bg-white/10 p-1 hidden sm:block">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-widest bg-white/20 px-2.5 py-1 rounded-full">LOST ERA (SS26)</span>
+                                <h3 class="text-lg sm:text-xl font-extrabold mt-1">Boost Your Sales with Exclusive Offers!</h3>
+                                <p class="text-xs text-purple-200 mt-0.5">Create discount codes in Marketing and track orders live.</p>
+                            </div>
+                        </div>
+                        <button onclick="switchView('marketing')" class="bg-[#110F21] hover:bg-black text-white px-5 py-3 rounded-xl text-xs font-bold shrink-0 shadow-md transition flex items-center gap-2">
+                            Create Campaign <i class="ph ph-caret-right"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     VIEW 2: PRODUCTS MANAGEMENT
+                     ========================================== -->
+                <section id="view-products" class="hidden space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Products</h1>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage your store products synced directly with Supabase</p>
+                        </div>
+                        <button onclick="openProductModal()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md shadow-brand-500/25 transition">
+                            <i class="ph ph-plus-bold text-base"></i> Add Product
+                        </button>
+                    </div>
+
+                    <div class="bg-white dark:bg-[#161426] p-4 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 overflow-x-auto">
+                                <button onclick="filterProducts('all', this)" class="tab-btn active px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">All (<span id="count-all-prod">0</span>)</button>
+                                <button onclick="filterProducts('published', this)" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">Published</button>
+                                <button onclick="filterProducts('draft', this)" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">Draft / Hidden</button>
+                                <button onclick="filterProducts('out', this)" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">Out of Stock</button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 dark:border-white/5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                        <th class="py-3.5 px-4">Product</th>
+                                        <th class="py-3.5 px-4">Collection</th>
+                                        <th class="py-3.5 px-4">Price</th>
+                                        <th class="py-3.5 px-4">Stock</th>
+                                        <th class="py-3.5 px-4">Status</th>
+                                        <th class="py-3.5 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table-body" class="divide-y divide-slate-100 dark:divide-white/5 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     VIEW 3: ORDERS MANAGEMENT
+                     ========================================== -->
+                <section id="view-orders" class="hidden space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Orders</h1>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage customer orders & send instant WhatsApp confirmations</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-[#161426] p-4 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm space-y-4">
+                        <div class="flex items-center gap-2 overflow-x-auto">
+                            <button onclick="filterOrders('all', this)" class="tab-btn active px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">All Orders</button>
+                            <button onclick="filterOrders('new', this)" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">New / Pending</button>
+                            <button onclick="filterOrders('confirmed', this)" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">Confirmed</button>
+                            <button onclick="filterOrders('shipped', this)" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">Shipped</button>
+                            <button onclick="filterOrders('delivered', this)" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 transition">Delivered</button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 dark:border-white/5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                        <th class="py-3.5 px-4">#Order</th>
+                                        <th class="py-3.5 px-4">Customer</th>
+                                        <th class="py-3.5 px-4">Address & Notes</th>
+                                        <th class="py-3.5 px-4">Date</th>
+                                        <th class="py-3.5 px-4">Total</th>
+                                        <th class="py-3.5 px-4">Status</th>
+                                        <th class="py-3.5 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body" class="divide-y divide-slate-100 dark:divide-white/5 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     VIEW 4: CUSTOMERS
+                     ========================================== -->
+                <section id="view-customers" class="hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Customers</h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Customer directory & order activity</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-[#161426] p-4 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 dark:border-white/5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <th class="py-3.5 px-4">Customer</th>
+                                    <th class="py-3.5 px-4">Email</th>
+                                    <th class="py-3.5 px-4">Phone</th>
+                                    <th class="py-3.5 px-4">Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table-body" class="divide-y divide-slate-100 dark:divide-white/5 text-sm"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     VIEW 5: ANALYTICS
+                     ========================================== -->
+                <section id="view-analytics" class="hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Analytics</h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Detailed insights about your store performance</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-[#161426] p-6 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-4">Sales Chart</h3>
+                            <div class="h-72"><canvas id="analyticsBarChart"></canvas></div>
+                        </div>
+                        <div class="bg-white dark:bg-[#161426] p-6 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-4">Sales by Category</h3>
+                            <div class="h-60 flex items-center justify-center"><canvas id="analyticsDoughnutChart"></canvas></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     VIEW 6: MARKETING & COUPONS
+                     ========================================== -->
+                <section id="view-marketing" class="hidden space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Marketing & Coupons</h1>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Create discount codes that work immediately on your checkout page</p>
+                        </div>
+                        <button onclick="openCouponModal()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md shadow-brand-500/25 transition">
+                            <i class="ph ph-plus-bold"></i> New Coupon
+                        </button>
+                    </div>
+
+                    <div class="bg-white dark:bg-[#161426] p-4 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 dark:border-white/5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <th class="py-3.5 px-4">Code</th>
+                                    <th class="py-3.5 px-4">Discount</th>
+                                    <th class="py-3.5 px-4">Used Count</th>
+                                    <th class="py-3.5 px-4">Status</th>
+                                    <th class="py-3.5 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coupons-table-body" class="divide-y divide-slate-100 dark:divide-white/5 text-sm"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     VIEW 7: SETTINGS
+                     ========================================== -->
+                <section id="view-settings" class="hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Settings</h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Configure your store preferences and security PIN</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-[#161426] p-6 rounded-2xl border border-slate-200/70 dark:border-white/5 shadow-sm space-y-4">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white">Store & Security Settings</h3>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">WhatsApp Order Notification Number</label>
+                                <input id="setting-whatsapp" type="text" value="201129268929" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Dashboard Lock PIN Code</label>
+                                <input id="setting-pin" type="text" value="2026" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm font-mono">
+                            </div>
+                            <button onclick="saveStoreSettings()" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL: ADD / EDIT PRODUCT
+         ========================================== -->
+    <div id="product-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#161426] w-full max-w-lg rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+                <h3 id="modal-title" class="text-base font-bold text-slate-900 dark:text-white">Add New Product</h3>
+                <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600"><i class="ph ph-x text-xl"></i></button>
+            </div>
+            <form id="product-form" onsubmit="saveProduct(event)" class="p-6 space-y-4">
+                <input type="hidden" id="prod-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Product Name</label>
+                    <input id="prod-name" required type="text" placeholder="e.g. DARK OLIVE 09 JRSY" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Sale Price (L.E)</label>
+                        <input id="prod-price" required type="number" placeholder="790" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Compare at Price (L.E)</label>
+                        <input id="prod-old-price" type="number" placeholder="850" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Collection</label>
+                        <select id="prod-category" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                            <option value="Camo Series">Camo Series (New Arrival)</option>
+                            <option value="Solid Collection">Solid Collection</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Stock Quantity</label>
+                        <input id="prod-stock" required type="number" value="50" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Image URL</label>
+                    <input id="prod-img" required type="url" placeholder="https://res.cloudinary.com/..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                </div>
+                <div class="flex items-center gap-2">
+                    <input id="prod-active" type="checkbox" checked class="w-4 h-4 accent-brand-500">
+                    <label for="prod-active" class="text-xs font-semibold">Published on Storefront</label>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5">Cancel</button>
+                    <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL: ADD COUPON
+         ========================================== -->
+    <div id="coupon-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#161426] w-full max-w-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Create Discount Coupon</h3>
+                <button onclick="document.getElementById('coupon-modal').classList.replace('flex','hidden')" class="text-slate-400 hover:text-slate-600"><i class="ph ph-x text-xl"></i></button>
+            </div>
+            <form onsubmit="saveCoupon(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Coupon Code</label>
+                    <input id="coup-code" required type="text" placeholder="LIZTR20" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm uppercase font-mono">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Type</label>
+                        <select id="coup-type" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                            <option value="percent">Percentage (%)</option>
+                            <option value="fixed">Fixed Amount (L.E)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Value</label>
+                        <input id="coup-val" required type="number" placeholder="20" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md">Create Coupon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT & LIVE SUPABASE ENGINE
+         ========================================== -->
+    <script>
+        const SUPABASE_URL = 'https://wmnqwuvjfmubfdnygixn.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtbnF3dXZqZm11YmZkbnlnaXhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MzIxNDAsImV4cCI6MjExMDQwODE0MH0.tQ9OVgaYhZowsl9JgqHq1oGQM4Ia_VBRv6PxOdOCr6Y';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let products = [];
+        let orders = [];
+        let customers = [];
+        let coupons = [];
+        let adminPin = localStorage.getItem('liztr_admin_pin') || '2026';
+
+        // 1. PIN Protection
+        function verifyPin(e) {
+            e.preventDefault();
+            const entered = document.getElementById('pin-input').value.trim();
+            if (entered === adminPin) {
+                sessionStorage.setItem('liztr_unlocked', 'true');
+                document.getElementById('pin-lock-screen').classList.add('hidden');
+                document.getElementById('pin-error').classList.add('hidden');
+            } else {
+                document.getElementById('pin-error').classList.remove('hidden');
+            }
+        }
+
+        function lockDashboard() {
+            sessionStorage.removeItem('liztr_unlocked');
+            document.getElementById('pin-input').value = '';
+            document.getElementById('pin-lock-screen').classList.remove('hidden');
+        }
+
+        // 2. Day / Night Theme Switcher
+        function initTheme() {
+            if (sessionStorage.getItem('liztr_unlocked') === 'true') {
+                document.getElementById('pin-lock-screen').classList.add('hidden');
+            }
+            const savedTheme = localStorage.getItem('liztr_theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(isDark ? 'light' : 'dark');
+        }
+
+        function setTheme(mode) {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const label = document.getElementById('theme-label');
+
+            if (mode === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                icon.className = 'ph-fill ph-moon-stars text-lg text-amber-300';
+                label.textContent = 'Night Mode';
+            } else {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'ph-fill ph-sun text-lg text-amber-500';
+                label.textContent = 'Day Mode';
+            }
+            localStorage.setItem('liztr_theme', mode);
+        }
+
+        // 3. View Switcher
+        function switchView(viewName) {
+            ['dashboard', 'products', 'orders', 'customers', 'analytics', 'marketing', 'settings'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${v}`);
+                if (navBtn) navBtn.classList.remove('active');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${viewName}`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        // 4. Load All Data from Supabase
+        async function loadAllFromSupabase() {
+            const badge = document.getElementById('db-status-badge');
+            try {
+                const [prodRes, ordRes, custRes, coupRes, setRes] = await Promise.all([
+                    sb.from('products').select('*').order('sort_order', { ascending: true }),
+                    sb.from('orders').select('*').order('created_at', { ascending: false }),
+                    sb.from('customers').select('*').order('created_at', { ascending: false }),
+                    sb.from('coupons').select('*').order('created_at', { ascending: false }),
+                    sb.from('site_settings').select('*')
+                ]);
+
+                if (prodRes.data) products = prodRes.data;
+                if (ordRes.data) orders = ordRes.data;
+                if (custRes.data) customers = custRes.data;
+                if (coupRes.data) coupons = coupRes.data;
+
+                if (setRes.data) {
+                    const pinRow = setRes.data.find(s => s.key === 'admin_pin');
+                    if (pinRow) {
+                        adminPin = pinRow.value;
+                        localStorage.setItem('liztr_admin_pin', adminPin);
+                        document.getElementById('setting-pin').value = adminPin;
+                    }
+                    const waRow = setRes.data.find(s => s.key === 'whatsapp_number');
+                    if (waRow) document.getElementById('setting-whatsapp').value = waRow.value;
+                }
+
+                renderDashboardKPIs();
+                renderProducts(products);
+                renderOrders(orders);
+                renderCustomers();
+                renderCoupons();
+
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Supabase Live`;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // 5. Render Functions
+        function renderDashboardKPIs() {
+            const totalRevenue = orders.reduce((acc, o) => acc + Number(o.total || 0), 0);
+            document.getElementById('kpi-sales').textContent = `${totalRevenue.toLocaleString()} L.E`;
+            document.getElementById('kpi-orders').textContent = orders.length;
+            document.getElementById('kpi-customers').textContent = Math.max(customers.length, orders.length);
+            document.getElementById('kpi-profit').textContent = `${Math.round(totalRevenue * 0.48).toLocaleString()} L.E`;
+        }
+
+        function renderProducts(list = products) {
+            const tbody = document.getElementById('products-table-body');
+            document.getElementById('count-all-prod').textContent = products.length;
+            document.getElementById('nav-prod-count').textContent = products.length;
+
+            tbody.innerHTML = list.map(p => {
+                const stock = p.stock ?? 50;
+                const isPublished = p.is_active && stock > 0;
+                const badge = isPublished
+                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Published</span>`
+                    : (stock === 0 
+                        ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Out of Stock</span>`
+                        : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400">Draft</span>`);
+
+                return `
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-white/5 transition">
+                    <td class="py-3.5 px-4 flex items-center gap-3">
+                        <img src="${p.image_url}" class="w-11 h-11 rounded-xl object-cover bg-slate-100 border border-slate-200 dark:border-white/10">
+                        <div>
+                            <p class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">${p.name}</p>
+                            <p class="text-[11px] text-slate-400">Was ${p.compare_at_price || 850} L.E</p>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-xs font-medium text-slate-500">${p.category || (p.is_new_arrival ? 'Camo Series' : 'Solid Collection')}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">${Number(p.price)} L.E</td>
+                    <td class="py-3.5 px-4 font-semibold ${stock === 0 ? 'text-rose-500' : ''}">${stock}</td>
+                    <td class="py-3.5 px-4">${badge}</td>
+                    <td class="py-3.5 px-4 text-right space-x-1">
+                        <button onclick="editProduct('${p.id}')" class="p-2 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-brand-500 hover:text-white text-slate-600 dark:text-slate-300 transition"><i class="ph ph-pencil-simple"></i></button>
+                        <button onclick="deleteProduct('${p.id}')" class="p-2 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 transition"><i class="ph ph-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            const topList = document.getElementById('top-products-list');
+            topList.innerHTML = products.filter(p => p.is_active).slice(0, 4).map((p, idx) => `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="${p.image_url}" class="w-11 h-11 rounded-xl object-cover bg-slate-100">
+                        <div>
+                            <p class="text-xs font-bold text-slate-900 dark:text-white">${p.name}</p>
+                            <p class="text-xs font-semibold text-slate-500">${Number(p.price)} L.E</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+${24 - idx * 4}%</span>
+                </div>
+            `).join('');
+        }
+
+        function renderOrders(list = orders) {
+            const tbody = document.getElementById('orders-table-body');
+            document.getElementById('nav-order-count').textContent = orders.length;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 text-xs">No orders yet. Try placing an order from the store checkout!</td></tr>`;
+                return;
+            }
+
+            const badgeColors = {
+                'delivered': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+                'confirmed': 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+                'new': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+                'shipped': 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+                'cancelled': 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+            };
+
+            tbody.innerHTML = list.map(o => `
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-white/5 transition">
+                    <td class="py-3.5 px-4 font-bold text-brand-500">${o.order_number || '#LE'}</td>
+                    <td class="py-3.5 px-4">
+                        <p class="font-bold text-slate-900 dark:text-white">${o.first_name} ${o.last_name}</p>
+                        <p class="text-[11px] text-slate-400">${o.phone} • ${o.governorate || o.city}</p>
+                    </td>
+                    <td class="py-3.5 px-4 text-xs">
+                        <p class="font-semibold text-slate-700 dark:text-slate-200">${o.notes || 'Standard Order'}</p>
+                        <p class="text-[11px] text-slate-400">${o.address}, ${o.city}</p>
+                    </td>
+                    <td class="py-3.5 px-4 text-xs text-slate-400">${new Date(o.created_at).toLocaleDateString()}</td>
+                    <td class="py-3.5 px-4 font-bold">${Number(o.total)} L.E</td>
+                    <td class="py-3.5 px-4">
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="px-2.5 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${badgeColors[o.status] || ''}">
+                            <option value="new" ${o.status === 'new' ? 'selected' : ''}>New / Pending</option>
+                            <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td class="py-3.5 px-4 text-right">
+                        <a href="https://wa.me/2${o.phone.replace(/^0+/, '0')}?text=${encodeURIComponent(`أهلاً ${o.first_name}، تم استلام طلبك رقم ${o.order_number} من LIZTR ESSENS بقيمة ${o.total} ج.م وجاري التجهيز للشحن.`)}" target="_blank" class="inline-flex items-center justify-center p-2 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition">
+                            <i class="ph ph-whatsapp-logo text-base"></i>
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCustomers() {
+            const tbody = document.getElementById('customers-table-body');
+            tbody.innerHTML = customers.map(c => `
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-white/5 transition">
+                    <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">${c.first_name || ''} ${c.last_name || ''}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-500">${c.email}</td>
+                    <td class="py-3.5 px-4 text-xs">${c.phone || '-'}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-400">${new Date(c.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCoupons() {
+            const tbody = document.getElementById('coupons-table-body');
+            tbody.innerHTML = coupons.map(c => `
+                <tr>
+                    <td class="py-3.5 px-4 font-mono font-bold text-brand-500">${c.code}</td>
+                    <td class="py-3.5 px-4 font-semibold">${c.discount_type === 'percent' ? c.discount_value + '% Off' : c.discount_value + ' L.E Off'}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-400">${c.used_count || 0} uses</td>
+                    <td class="py-3.5 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${c.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}">${c.is_active ? 'Active' : 'Disabled'}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-right">
+                        <button onclick="deleteCoupon('${c.id}')" class="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg"><i class="ph ph-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 6. CRUD Operations on Supabase
+        function openProductModal() {
+            document.getElementById('product-form').reset();
+            document.getElementById('prod-id').value = '';
+            document.getElementById('modal-title').textContent = 'Add New Product';
+            document.getElementById('product-modal').classList.replace('hidden', 'flex');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.replace('flex', 'hidden');
+        }
+
+        function editProduct(id) {
+            const p = products.find(item => item.id === id);
+            if (!p) return;
+            document.getElementById('prod-id').value = p.id;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-old-price').value = p.compare_at_price || 850;
+            document.getElementById('prod-category').value = p.category || (p.is_new_arrival ? 'Camo Series' : 'Solid Collection');
+            document.getElementById('prod-stock').value = p.stock ?? 50;
+            document.getElementById('prod-img').value = p.image_url;
+            document.getElementById('prod-active').checked = p.is_active;
+            document.getElementById('modal-title').textContent = 'Edit Product';
+            document.getElementById('product-modal').classList.replace('hidden', 'flex');
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('prod-id').value;
+            const name = document.getElementById('prod-name').value.toUpperCase().trim();
+            const category = document.getElementById('prod-category').value;
+            const payload = {
+                name,
+                slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000),
+                price: parseFloat(document.getElementById('prod-price').value),
+                compare_at_price: parseFloat(document.getElementById('prod-old-price').value) || 850,
+                category,
+                is_new_arrival: category === 'Camo Series',
+                stock: parseInt(document.getElementById('prod-stock').value) || 0,
+                image_url: document.getElementById('prod-img').value.trim(),
+                is_active: document.getElementById('prod-active').checked
+            };
+
+            if (id) {
+                delete payload.slug;
+                await sb.from('products').update(payload).eq('id', id);
+            } else {
+                await sb.from('products').insert([payload]);
+            }
+            closeProductModal();
+            await loadAllFromSupabase();
+        }
+
+        async function deleteProduct(id) {
+            await sb.from('products').delete().eq('id', id);
+            await loadAllFromSupabase();
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            await sb.from('orders').update({ status }).eq('id', orderId);
+            await loadAllFromSupabase();
+        }
+
+        function openCouponModal() {
+            document.getElementById('coupon-modal').classList.replace('hidden', 'flex');
+        }
+
+        async function saveCoupon(e) {
+            e.preventDefault();
+            const code = document.getElementById('coup-code').value.toUpperCase().trim();
+            const discount_type = document.getElementById('coup-type').value;
+            const discount_value = parseFloat(document.getElementById('coup-val').value);
+            await sb.from('coupons').insert([{ code, discount_type, discount_value, is_active: true }]);
+            document.getElementById('coupon-modal').classList.replace('flex', 'hidden');
+            await loadAllFromSupabase();
+        }
+
+        async function deleteCoupon(id) {
+            await sb.from('coupons').delete().eq('id', id);
+            await loadAllFromSupabase();
+        }
+
+        async function saveStoreSettings() {
+            const newPin = document.getElementById('setting-pin').value.trim();
+            const newWa = document.getElementById('setting-whatsapp').value.trim();
+            adminPin = newPin;
+            localStorage.setItem('liztr_admin_pin', newPin);
+            await sb.from('site_settings').upsert([
+                { key: 'admin_pin', value: newPin },
+                { key: 'whatsapp_number', value: newWa }
+            ]);
+            alert('Settings saved to Supabase!');
+        }
+
+        // 7. Filtering & Search
+        function filterProducts(mode, btn) {
+            document.querySelectorAll('#view-products .tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (mode === 'all') return renderProducts(products);
+            if (mode === 'published') return renderProducts(products.filter(p => p.is_active && (p.stock ?? 50) > 0));
+            if (mode === 'draft') return renderProducts(products.filter(p => !p.is_active));
+            if (mode === 'out') return renderProducts(products.filter(p => (p.stock ?? 50) === 0));
+        }
+
+        function filterOrders(status, btn) {
+            document.querySelectorAll('#view-orders .tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (status === 'all') return renderOrders(orders);
+            renderOrders(orders.filter(o => o.status === status));
+        }
+
+        function handleGlobalSearch(q) {
+            const query = q.toLowerCase().trim();
+            if (!query) {
+                renderProducts(products);
+                renderOrders(orders);
+                return;
+            }
+            renderProducts(products.filter(p => p.name.toLowerCase().includes(query)));
+            renderOrders(orders.filter(o => (o.first_name + ' ' + o.last_name).toLowerCase().includes(query) || (o.order_number || '').toLowerCase().includes(query)));
+        }
+
+        // 8. Sound Alert & Realtime Listener
+        function playOrderAlert() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.35);
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.35);
+        }
+
+        function subscribeRealtimeOrders() {
+            sb.channel('live-orders')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+                    playOrderAlert();
+                    const toast = document.getElementById('order-toast');
+                    document.getElementById('order-toast-text').textContent = `${payload.new.first_name} ordered (${payload.new.total} L.E)`;
+                    toast.classList.replace('hidden', 'flex');
+                    setTimeout(() => toast.classList.replace('flex', 'hidden'), 6000);
+                    loadAllFromSupabase();
+                })
+                .subscribe();
+        }
+
+        // 9. Charts Initialization
+        function initCharts() {
+            const ctxSales = document.getElementById('salesOverviewChart').getContext('2d');
+            const gradient = ctxSales.createLinearGradient(0, 0, 0, 240);
+            gradient.addColorStop(0, 'rgba(124, 58, 237, 0.35)');
+            gradient.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+
+            new Chart(ctxSales, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Sales',
+                        data: [4200, 7800, 6500, 11200, 15240, 12900, 14800],
+                        borderColor: '#7c3aed',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#7c3aed',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('analyticsBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+                    datasets: [{ data: [12000, 15500, 14200, 19800, 22400, 24780], backgroundColor: '#7c3aed', borderRadius: 8 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            new Chart(document.getElementById('analyticsDoughnutChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Solid Collection', 'Camo Series'],
+                    datasets: [{ data: [62, 38], backgroundColor: ['#7c3aed', '#818cf8'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initCharts();
+            loadAllFromSupabase();
+            subscribeRealtimeOrders();
+        });
+    </script>
+</body>
+</html>
